@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@plugin "daisyui" {
+  themes: forest, cyberpunk, retro, lofi;
+}
+
+
+/* Custom tweaks if necessary, but relying mostly on DaisyUI */
+html,
+body {
+  height: 100%;
+}
