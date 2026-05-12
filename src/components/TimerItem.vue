@@ -40,81 +40,55 @@ const formattedTimeLeft = computed(() => {
   const h = Math.floor(totalSeconds / 3600)
   const m = Math.floor((totalSeconds % 3600) / 60)
   const s = totalSeconds % 60
-  
-  if (h > 0) return `${h}h ${m}m ${s}s`
-  return `${m}m ${s}s`
+  const pad = (n) => String(n).padStart(2, '0')
+  if (h > 0) return `${pad(h)}:${pad(m)}:${pad(s)}`
+  return `${pad(m)}:${pad(s)}`
 })
 
 const formattedEndTime = computed(() => {
   return new Date(props.timer.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 })
 
-// Safe class lookups for Tailwind JIT
-const borderClass = computed(() => {
-  const map = {
-    'primary': 'border-primary',
-    'secondary': 'border-secondary',
-    'accent': 'border-accent',
-    'neutral': 'border-neutral',
-    'info': 'border-info',
-    'success': 'border-success',
-    'warning': 'border-warning',
-    'error': 'border-error'
-  }
-  return map[props.timer.color] || 'border-primary'
+const toneClass = computed(() => {
+  const raw = String(props.timer.color || '1')
+  const known = ['1', '2', '3', '4', '5', '6']
+  return known.includes(raw) ? `tone-${raw}` : 'tone-1'
 })
 
-const progressClass = computed(() => {
-  const map = {
-    'primary': 'progress-primary',
-    'secondary': 'progress-secondary',
-    'accent': 'progress-accent',
-    'neutral': 'progress-neutral',
-    'info': 'progress-info',
-    'success': 'progress-success',
-    'warning': 'progress-warning',
-    'error': 'progress-error'
-  }
-  return map[props.timer.color] || 'progress-primary'
+const pid = computed(() => {
+  return props.timer.id ? props.timer.id.slice(0, 4).toUpperCase() : 'XXXX'
 })
 </script>
 
 <template>
-  <div class="card bg-base-100 shadow-xl border-l-[8px]" :class="borderClass">
-    <div class="card-body p-5">
-      
-      <!-- Header -->
-      <div class="flex justify-between items-start">
-        <h2 class="card-title text-2xl">{{ timer.label }}</h2>
-        <button class="btn btn-ghost btn-sm btn-circle text-error" @click="timerStore.removeTimer(timer.id)">
-            <Trash2 :size="20" />
-        </button>
+  <article class="timer-card" :class="toneClass" :data-pid="pid">
+    <div class="timer-row">
+
+      <h3 class="timer-label">{{ timer.label }}</h3>
+
+      <div class="timer-stat">
+        <span class="timer-eyebrow">Remaining</span>
+        <span class="timer-time">{{ formattedTimeLeft }}</span>
       </div>
 
-      <!-- Time Display -->
-      <div class="flex justify-between items-end mt-2">
-        <div class="flex flex-col">
-          <span class="text-xs uppercase tracking-widest opacity-70">Remaining</span>
-          <span class="text-4xl font-black font-mono tracking-tighter">{{ formattedTimeLeft }}</span>
-        </div>
-        
-        <div class="flex flex-col items-end">
-          <span class="text-xs uppercase tracking-widest opacity-70">Ends At</span>
-          <span class="text-xl font-bold">{{ formattedEndTime }}</span>
-        </div>
+      <div class="timer-stat">
+        <span class="timer-eyebrow">Ends</span>
+        <span class="timer-endtime">{{ formattedEndTime }}</span>
       </div>
 
-      <!-- Progress Bar -->
-      <progress 
-        class="progress w-full h-4 mt-4" 
-        :class="progressClass" 
-        :value="progress" 
-        max="100"
-      ></progress>
+      <div class="progress-rail" :aria-valuenow="progress" aria-valuemin="0" aria-valuemax="100" role="progressbar">
+        <div class="progress-fill" :style="{ width: progress + '%' }"></div>
+      </div>
+
+      <button
+        type="button"
+        class="app-btn-ghost timer-trash"
+        :aria-label="`Remove ${timer.label}`"
+        @click="timerStore.removeTimer(timer.id)"
+      >
+        <Trash2 :size="18" />
+      </button>
 
     </div>
-  </div>
+  </article>
 </template>
-
-<style scoped>
-</style>

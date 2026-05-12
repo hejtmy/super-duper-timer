@@ -7,71 +7,65 @@ import TimerItem from './components/TimerItem.vue'
 
 const themeStore = useThemeStore()
 const timerStore = useTimerStore()
-// themes is now a ref, so storeToRefs will pickup or we can access directly
 const { currentTheme, themes } = storeToRefs(themeStore)
 const { timers } = storeToRefs(timerStore)
+
+const subtitleByTheme = {
+  Naturalist: 'forest hours, kept by hand',
+  Cyberpunk:  'CHRONO//OVERCLOCK_v2.0',
+  Bookworm:   'a chronicle of study'
+}
 </script>
 
 <template>
-  <div class="min-h-screen bg-base-200 flex flex-col items-center py-8 px-4 gap-8 font-sans">
-    
-    <!-- Navbar -->
-    <div class="navbar bg-base-100 shadow-xl rounded-box max-w-4xl w-full">
-      <div class="flex-1">
-        <a class="btn btn-ghost text-2xl font-bold text-primary normal-case">Exam Timer</a>
+  <div class="app-shell stagger">
+
+    <header class="app-nav">
+      <div class="app-nav-left">
+        <span class="app-brand">Exam Timer</span>
+        <span class="app-brand-sub">{{ subtitleByTheme[currentTheme] }}</span>
       </div>
-      <div class="flex-none gap-2">
-         <span class="text-sm font-semibold opacity-70 hidden sm:inline mr-2">Theme:</span>
-        <select class="select select-bordered select-sm w-full max-w-xs" v-model="currentTheme">
+      <div class="app-nav-right">
+        <span class="field-label" style="margin: 0;">Theme</span>
+        <select class="app-select" v-model="currentTheme" style="width: auto; min-width: 180px;">
           <option v-for="theme in themes" :key="theme" :value="theme">
             {{ theme }}
           </option>
         </select>
       </div>
-    </div>
+    </header>
 
-    <main class="w-full max-w-4xl flex flex-col gap-6">
-      
-      <!-- New Timer Form -->
-      <div class="card bg-base-100 shadow-xl w-full">
-        <div class="card-body">
-          <h2 class="card-title text-primary mb-4">Create New Timer</h2>
-          <NewTimerForm />
-        </div>
-      </div>
+    <main class="app-main">
 
-      <!-- Timer List -->
-      <div class="flex flex-col gap-4">
-        <div class="flex items-center justify-between">
-           <h2 class="text-2xl font-bold ml-1">Active Timers</h2>
-           <span class="badge badge-lg badge-neutral" v-if="timers.length">{{ timers.length }}</span>
+      <section class="app-card">
+        <h2 class="card-title">Create New Timer</h2>
+        <NewTimerForm />
+      </section>
+
+      <section class="timer-section">
+        <div class="section-header">
+          <h2 class="section-title">Active Timers</h2>
+          <span class="section-count" v-if="timers.length">{{ timers.length }}</span>
         </div>
-        
-        <div v-if="timers.length === 0" class="hero bg-base-100/50 rounded-box py-10 border-2 border-dashed border-base-300">
-           <div class="hero-content text-center">
-            <div class="max-w-md">
-              <h1 class="text-3xl font-bold opacity-50">No Timers</h1>
-              <p class="py-6 opacity-70">Start a new exam section above to see it here.</p>
-            </div>
+
+        <div class="timer-list" style="margin-top: 18px;">
+          <div v-if="timers.length === 0" class="empty-card">
+            <h3 class="empty-title">Nothing Running</h3>
+            <p class="empty-body">Set a new section above and it will appear here.</p>
           </div>
-        </div>
 
-        <TimerItem 
-          v-for="timer in timers" 
-          :key="timer.id" 
-          :timer="timer" 
-        />
-      </div>
+          <TimerItem
+            v-for="timer in timers"
+            :key="timer.id"
+            :timer="timer"
+          />
+        </div>
+      </section>
 
     </main>
-    
-    <footer class="footer footer-center p-4 text-base-content opacity-50">
-      <aside>
-        <p>Super Duper Exam Timer © {{ new Date().getFullYear() }}</p>
-      </aside>
+
+    <footer class="app-footer">
+      Super Duper Exam Timer · {{ new Date().getFullYear() }}
     </footer>
   </div>
 </template>
-
-<style scoped>
-</style>
